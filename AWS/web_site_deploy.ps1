@@ -58,4 +58,4 @@ configuration Sample_xWebsite_NewWebsite
     } 
 } Sample_xWebsite_NewWebsite
 
-Start-DscConfiguraton -Path .\Sample_xWebsite_NewWebsite -Verbose -Wait -Force
+Start-DscConfiguration -Path .\Sample_xWebsite_NewWebsite -Verbose -Wait -Force
