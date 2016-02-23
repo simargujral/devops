@@ -40,7 +40,7 @@ configuration Sample_xWebsite_NewWebsite
         File WebContent 
         { 
             Ensure          = "Present" 
-            SourcePath      = "C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\mysite" 
+            SourcePath      = "C:\Windows\system32\WindowsPowerShell\v1.0\\Modules\xWebAdministration\mysite" 
             DestinationPath = "C:\inetpub\mywebsite"
             Recurse         = $true 
             Type            = "Directory" 
