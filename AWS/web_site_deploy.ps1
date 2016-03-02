@@ -1,16 +1,14 @@
-configuration Sample_xWebsite_NewWebsite 
-{ 
-    param 
-    ( 
-        # Target nodes to apply the configuration 
-        [string[]]$NodeName = 'localhost' 
-    ) 
-    # Import the module that defines custom resources 
-    Import-DscResource -ModuleName xWebAdministration 
-    
-    Node $NodeName 
-    { 
-        # Install the IIS role 
+Configuration Sample_xWebsite_NewWebsite
+{
+    param
+    (
+        [string]$WebPiSourcePath="C:\Windows\system32\WindowsPowerShell\v1.0\Modules\xWebAdministration\WebPi\wpilauncher.exe",
+        [string]$WebPiCmdPath ="$env:ProgramFiles\Microsoft\Web Platform Installer\WebPiCmd-x64.exe"
+    )
+	Import-DscResource -ModuleName xWebAdministration
+
+    Node 'localhost'
+    {    
         WindowsFeature IIS 
         { 
             Ensure          = "Present" 
@@ -27,8 +25,31 @@ configuration Sample_xWebsite_NewWebsite
             Name = "Web-Mgmt-Console"
             Ensure = "Present"
         }
-        # Stop the default website 
-        xWebsite DefaultSite  
+        WindowsFeature Web-Mgmt-Service  
+        {  
+            Ensure          = 'Present'  
+            Name            = 'Web-Mgmt-Service' 	  
+            DependsOn       = '[WindowsFeature]IIS'  
+        }
+        Package WebPi_Installation
+        {
+            Ensure = "Present"
+            Name = "Microsoft Web Platform Installer 5.0"
+            Path = $WebPiSourcePath
+            ProductId = '4D84C195-86F0-4B34-8FDE-4A17EB41306A'
+            Arguments = ''
+        }
+
+        Package WebDeploy_Installation
+        {
+            Ensure = "Present"
+            Name = "Microsoft Web Deploy 3.5"
+            Path = $WebPiCmdPath
+            ProductId = ''
+            Arguments = "/install /products:WDeploy /AcceptEula"
+            DependsOn = @("[Package]WebPi_Installation")
+        }
+	xWebsite DefaultSite  
         { 
             Ensure          = "Present" 
             Name            = "Default Web Site" 
@@ -40,7 +61,7 @@ configuration Sample_xWebsite_NewWebsite
         File WebContent 
         { 
             Ensure          = "Present" 
-            SourcePath      = "C:\Windows\system32\WindowsPowerShell\v1.0\\Modules\xWebAdministration\mysite" 
+            SourcePath      = "C:\Windows\system32\WindowsPowerShell\v1.0\Modules\xWebAdministration\mysite" 
             DestinationPath = "C:\inetpub\mywebsite"
             Recurse         = $true 
             Type            = "Directory" 
@@ -53,9 +74,17 @@ configuration Sample_xWebsite_NewWebsite
             Name            = "myWebsite" 
             State           = "Started" 
             PhysicalPath    = "C:\inetpub\mywebsite"
-            DependsOn       = "[File]WebContent" 
-        } 
-    } 
-} Sample_xWebsite_NewWebsite
+            DependsOn       = "[File]WebContent"
+            BindingInfo     = MSFT_xWebBindingInformation
+            {
+                Protocol              = 'http'
+                Port                  = '80'
+                HostName              = ''
+            }    
+        }
+    }
+}
+
+Sample_xWebsite_NewWebsite
 
 Start-DscConfiguration -Path .\Sample_xWebsite_NewWebsite -Verbose -Wait -Force

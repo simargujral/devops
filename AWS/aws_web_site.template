@@ -1,0 +1,187 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "This template enables roles and features of Windows Server. **WARNING** This template creates Amazon EC2 Windows instance and related resources. You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Parameters" : {
+    "KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair",
+      "Type" : "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+    },
+
+    "InstanceType" : {
+      "Description" : "Amazon EC2 instance type",
+      "Type" : "String",
+      "Default" : "t2.small",
+      "AllowedValues" : [ "t1.micro", "t2.micro", "t2.small", "t2.medium", "m1.small", "m1.medium", "m1.large", "m1.xlarge"],
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+    
+    "SourceCidrForRDP" : {
+      "Description" : "IP Cidr from which you are likely to RDP into the instances. You can add rules later by modifying the created security groups e.g. 54.32.98.160/32",
+      "Type" : "String",
+      "Default" : "0.0.0.0/0",
+      "MinLength" : "9",
+      "MaxLength" : "18",
+      "AllowedPattern" : "^([0-9]+\\.){3}[0-9]+\\/[0-9]+$"
+    }
+  },
+
+  "Mappings" : {
+    "AWSRegion2AMI" : {
+      "us-east-1"        : {"Windows2008r2" : "ami-31620c54", "Windows2012r2" : "ami-9a0558f0"},
+      "us-west-2"        : {"Windows2008r2" : "ami-d53c21e5", "Windows2012r2" : "ami-dfccd1ef"},
+      "us-west-1"        : {"Windows2008r2" : "ami-2b2dd76f", "Windows2012r2" : "ami-890af0cd"},
+      "eu-west-1"        : {"Windows2008r2" : "ami-872f0ff0", "Windows2012r2" : "ami-abe9c9dc"},
+      "eu-central-1"     : {"Windows2008r2" : "ami-98656585", "Windows2012r2" : "ami-3e737323"},
+      "ap-northeast-1"   : {"Windows2008r2" : "ami-2c41ca2c", "Windows2012r2" : "ami-4623a846"},
+      "ap-southeast-1"   : {"Windows2008r2" : "ami-80c2c8d2", "Windows2012r2" : "ami-58efe50a"},
+      "ap-southeast-2"   : {"Windows2008r2" : "ami-ed2b64d7", "Windows2012r2" : "ami-f53679cf"},
+      "sa-east-1"        : {"Windows2008r2" : "ami-53db4e4e", "Windows2012r2" : "ami-3bce5b26"},
+      "cn-north-1"       : {"Windows2008r2" : "ami-e2811ddb", "Windows2012r2" : "ami-f0811dc9"}
+    }
+
+  },
+
+  "Resources" : {
+
+    "InstanceSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable RDP",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "3389", "ToPort" : "3389", "CidrIp" : { "Ref" : "SourceCidrForRDP" }}
+        ]
+      }
+    },
+
+    "WindowsServer": {
+      "Type" : "AWS::EC2::Instance",
+      "Metadata" : {
+        "AWS::CloudFormation::Init" : {
+          "configSets" : {
+                        "config" : [
+                            "setup",
+                            "run_dsc"
+                        ]
+                    },
+          "setup"      : {              
+               "files" : {
+              "c:\\cfn\\cfn-hup.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "[main]\n",
+                  "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                  "region=", { "Ref" : "AWS::Region" }, "\n"
+                  ]]}
+              },
+              "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf" : {
+                "content": { "Fn::Join" : ["", [
+                  "[cfn-auto-reloader-hook]\n",
+                  "triggers=post.update\n",
+                  "path=Resources.WindowsServer.Metadata.AWS::CloudFormation::Init\n",
+                  "action=cfn-init.exe -v -c config -s ", { "Ref" : "AWS::StackId" },
+                      " -r WindowsServer",
+                      " --region ", { "Ref" : "AWS::Region" }, "\n"
+                ]]}
+              },
+              "c:\\cfn\\scripts\\web_site_deploy.ps1"      : {
+                                "source" : "https://raw.githubusercontent.com/simargujral/devops/master/AWS/web_site_deploy.ps1"
+                            },
+              "c:\\cfn\\scripts\\Unzip-Archive.ps1"      : {
+                                "source" : "https://raw.githubusercontent.com/simargujral/devops/master/AWS/Unzip-Archive.ps1"
+                            },
+              "c:\\cfn\\scripts\\powershell_modules.zip"      : {
+                                "source" : "https://raw.githubusercontent.com/simargujral/devops/master/AWS/powershell_modules.zip"
+                            },
+              "c:\\cfn\\scripts\\firewall_setup.ps1"      : {
+                                "source" : "https://raw.githubusercontent.com/simargujral/devops/master/AWS/firewall_setup.ps1"
+                            }
+            },           
+            "commands" : {
+              "a-set-execution-policy" : {
+                "command" : "powershell.exe -command Set-ExecutionPolicy RemoteSigned -Force",
+                                "waitAfterCompletion" : "0"
+              },
+              "b-unpack-quickstart-module" : {
+                                "command" : "powershell.exe -command c:\\cfn\\scripts\\Unzip-Archive.ps1 -Source c:\\cfn\\scripts\\powershell_modules.zip -Destination C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules\\",
+                                "waitAfterCompletion" : "0"
+                            }
+            },
+            "services" : {
+              "windows" : {
+                "cfn-hup" : {
+                  "enabled" : "true",
+                  "ensureRunning" : "true",
+                  "files" : ["c:\\cfn\\cfn-hup.conf", "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf"]
+                }
+              }
+            }
+        },
+        
+        "run_dsc"     : {
+                        "commands" : {
+                            "a-run-firewall-setup" : {
+                                "command" : "powershell.exe -command C:\\cfn\\scripts\\firewall_setup.ps1",
+                                            "waitAfterCompletion" : "0"
+                                        },
+        
+        
+                            "b-run-powershell-dsc" : {
+                            "command" : "powershell.exe -command c:\\cfn\\scripts\\web_site_deploy.ps1",
+                                        "waitAfterCompletion" : "0"
+                            },
+                            
+                            "c-signal-success" : { 
+                "command" : { "Fn::Join" : ["", [ 
+                  "cfn-signal.exe -e 0 \"", { "Fn::Base64" : { "Ref" : "WindowsServerWaitHandle" } },"\"" ]]
+                },
+                "waitAfterCompletion" : "0"
+              }
+                            
+                        }
+                 }
+            }
+        },
+
+      "Properties": {
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegion2AMI", { "Ref" : "AWS::Region" }, "Windows2012r2" ]},
+        "SecurityGroups" : [ {"Ref" : "InstanceSecurityGroup"} ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "Tags"    : [
+             {
+                "Key" : "Name",
+                "Value" : "DemoWS"
+             },
+             {
+                "Key" : "Owner",
+                "Value" : "Simar"
+             }
+           ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+            "<script>\n",
+
+            "cfn-init.exe -v -c config -s ", { "Ref" : "AWS::StackId" }, 
+            " -r WindowsServer",
+            " --region ", { "Ref" : "AWS::Region" }, "\n",
+            
+            "</script>"
+        ]]}}
+      }
+    },
+
+    "WindowsServerWaitHandle" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle"
+    },
+
+    "WindowsServerWaitCondition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "WindowsServer",
+      "Properties" : {
+        "Handle" : {"Ref" : "WindowsServerWaitHandle"},
+        "Timeout" : "2400"
+      }
+    }
+  }  
+}
