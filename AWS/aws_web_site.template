@@ -121,16 +121,15 @@
         
         "run_dsc"     : {
                         "commands" : {
-                            "a-run-firewall-setup" : {
-                                "command" : "powershell.exe -command C:\\cfn\\scripts\\firewall_setup.ps1",
-                                            "waitAfterCompletion" : "0"
-                                        },
-        
-        
-                            "b-run-powershell-dsc" : {
+                        
+                            "a-run-powershell-dsc" : {
                             "command" : "powershell.exe -command c:\\cfn\\scripts\\web_site_deploy.ps1",
                                         "waitAfterCompletion" : "0"
                             },
+                            "b-run-firewall-setup" : {
+                                "command" : "powershell.exe -command C:\\cfn\\scripts\\firewall_setup.ps1",
+                                            "waitAfterCompletion" : "0"
+                                        },
                             
                             "c-signal-success" : { 
                 "command" : { "Fn::Join" : ["", [ 
