@@ -107,7 +107,8 @@ Configuration hpsc_stg_web3
             Name            = "hpsc-stg-web-3" 
             State           = "Started" 
             PhysicalPath    = "C:\inetpub\wwwroot\hpsc-stg-web-3"
-            BindingInfo     = MSFT_xWebBindingInformation
+            BindingInfo     = @(
+                               MSFT_xWebBindingInformation
                               {
                                   Protocol              = 'http'
                                   Port                  = '80'
@@ -118,7 +119,7 @@ Configuration hpsc_stg_web3
                                   Protocol              = 'https'
                                   Port                  = '443'
                                   HostName              = ''
-                              } 
+                              } )
         }
     }
 }
