@@ -19,7 +19,7 @@ netsh advfirewall firewall add rule name = monitis_east2_ping dir = in remoteip 
 netsh advfirewall firewall add rule name = monitis_east1_ping dir = in remoteip = 173.193.219.173/32 enable = yes action = allow
 
 # Adding Web Deploy user to IIS Manager Permissions for site "hpsc-stg-web-3"
-[System.Reflection.Assembly]::LoadWithPartialName(“Microsoft.Web.Management”)  
+[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Web.Management")  
 [Microsoft.Web.Management.Server.ManagementAuthentication]::CreateUser("hpsc-stg-web-3-deploy", "pass@123456") 
 [Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)
 
