@@ -105,13 +105,13 @@ Configuration hpsc_stg_web3
             ValueType      = 'Dword'
             DependsOn      = '[WindowsFeature]Web-Mgmt-Service'  
         }
-        # Create the Website 
-        <#File hpsc-stg-web-3 {
+        # Create the Directory Structure for the website 
+        File hpsc-stg-web-3 {
             Type            = 'Directory'
             DestinationPath = 'C:\inetpub\wwwroot\hpsc-stg-web-3'
             Ensure          = "Present"
             DependsOn       = '[WindowsFeature]IIS'  
-        }  #>              
+        }             
         # Create the new Website
         xWebsite hpsc-stg-web-3 
         { 
