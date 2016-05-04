@@ -72,7 +72,7 @@ Configuration hpsc_stg_web3
             Path = "$env:ProgramFiles\Microsoft\Web Platform Installer\WebPiCmd-x64.exe"
             ProductId = ''
             Arguments = "/install /products:WDeploy /AcceptEula"
-            DependsOn = @("[Package]WebPi_Installation")
+            DependsOn = @("[Package]wpiinstall")
         }
 		<#
 		Package rtools
