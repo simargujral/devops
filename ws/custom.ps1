@@ -1,22 +1,29 @@
 
-
+try
+{
+Write-Verbose -Message "Creating user configuration"
 # Setting password for WDeployAdmin
 net user WDeployAdmin pass@123456 /expires:never
 
 # Setting password for WDeployAdmin, WDeployConfigWriter and wsadmin to expire never
 $user = [adsi]"WinNT://$env:computername/WDeployAdmin"
 $user.UserFlags.value = $user.UserFlags.value -bor 0x10000
-$user.CommitChanges()
+$user.CommitChanges() -ErrorAction STOP
 
 $user = [adsi]"WinNT://$env:computername/WDeployConfigWriter"
 $user.UserFlags.value = $user.UserFlags.value -bor 0x10000
-$user.CommitChanges()
+$user.CommitChanges() -ErrorAction STOP
 
 $user = [adsi]"WinNT://$env:computername/wsadmin"
 $user.UserFlags.value = $user.UserFlags.value -bor 0x10000
-$user.CommitChanges()
+$user.CommitChanges() -ErrorAction STOP
+}
+catch {
+Write-Verbose -Message "$_.exception" -Verbose
+}
 
 # Setting OS Level Firewall Rules
+Write-Verbose -Message "Creating firewall configuration"
 netsh advfirewall firewall add rule name = http dir = in protocol = tcp localport = 80 enable = yes action = allow
 netsh advfirewall firewall add rule name = https dir = in protocol = tcp localport = 443 enable = yes action = allow
 netsh advfirewall firewall add rule name = boi_VS2015_remote_debug1 dir = in protocol = tcp localport = 4020 remoteip = 70.98.117.66/32 enable = yes action = allow
@@ -36,12 +43,23 @@ netsh advfirewall firewall add rule name = monitis_east2_ping dir = in remoteip 
 netsh advfirewall firewall add rule name = monitis_east1_ping dir = in remoteip = 173.193.219.173/32 enable = yes action = allow
 
 
+try {
 
-# Installing Visual Studio 2015 Remote Debugger
+Write-Verbose -Message "Installing Visual Studio 2015 Remote Debugger" -Verbose
 C:\rtools_setup_x64.exe /install /quiet /norestart
 sleep 150
+	if ($error[0]) {Write-Verbose $error[0].Exception}
+}
+catch{
+Write-Verbose -Message " $_.Exception "
+}
 
+try {
 # Adding Web Deploy user to IIS Manager Permissions for site "hpsc-stg-web-3"
 [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Web.Management")  
 [Microsoft.Web.Management.Server.ManagementAuthentication]::CreateUser("hpsc-stg-web-3-deploy", "pass@123456") 
 [Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)
+}
+catch{
+Write-Verbose -Message " $_.Exception "
+}
