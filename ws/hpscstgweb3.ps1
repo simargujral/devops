@@ -87,6 +87,31 @@ Configuration hpsc_stg_web3
 			
             
         }#>
+		Script Install-VSRemoteDebugger
+        {
+            SetScript = {
+                Write-Verbose "Strating Installation of VS2015 Remote Debugger"			
+                Start-Process 'C:\rtools_setup_x64.exe' -ArgumentList "/install /quiet /norestart" -Wait   
+            }
+            TestScript = { 
+                $check_file="C:\Program Files\Microsoft Visual Studio 14.0\Common7\IDE\Remote Debugger\x64\rdbgservice.exe"
+                if(Test-Path $check_file) 
+                {
+                     Write-Verbose "Remote Debugger Already Installed"
+                     return $true
+                }
+				return $false
+
+            }
+            GetScript = { 
+                return @{
+                    GetScript = $GetScript
+                    SetScript = $SetScript
+                    TestScript = $TestScript
+                    Result = $result 
+                }
+            }          
+        }
         # Stopping Default Website
 	    xWebsite DefaultSite  
         { 
