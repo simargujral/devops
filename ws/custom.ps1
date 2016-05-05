@@ -1,7 +1,4 @@
-# Adding Web Deploy user to IIS Manager Permissions for site "hpsc-stg-web-3"
-[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Web.Management")  
-[Microsoft.Web.Management.Server.ManagementAuthentication]::CreateUser("hpsc-stg-web-3-deploy", "pass@123456") 
-[Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)
+
 
 # Setting password for WDeployAdmin
 net user WDeployAdmin pass@123456 /expires:never
@@ -43,3 +40,8 @@ netsh advfirewall firewall add rule name = monitis_east1_ping dir = in remoteip 
 # Installing Visual Studio 2015 Remote Debugger
 C:\rtools_setup_x64.exe /install /quiet /norestart
 sleep 150
+
+# Adding Web Deploy user to IIS Manager Permissions for site "hpsc-stg-web-3"
+[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Web.Management")  
+[Microsoft.Web.Management.Server.ManagementAuthentication]::CreateUser("hpsc-stg-web-3-deploy", "pass@123456") 
+[Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)
