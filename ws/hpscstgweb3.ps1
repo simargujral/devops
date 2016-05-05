@@ -158,6 +158,32 @@ Configuration hpsc_stg_web3
                                   HostName              = 'hspc-stg-web-3.hpsalescentral.com'
                               } )
         }
+		Script createIISMngrUser
+        {
+            SetScript = {
+                [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Web.Management")  
+                [Microsoft.Web.Management.Server.ManagementAuthentication]::CreateUser("hpsc-stg-web-3-deploy", "pass@123456") 
+                [Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)   
+            }
+            TestScript = {
+                try {  
+				    [Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)
+                    return $true					
+				}
+				catch {
+				    return $false
+				}
+
+            }
+            GetScript = { 
+                return @{
+                    GetScript = $GetScript
+                    SetScript = $SetScript
+                    TestScript = $TestScript
+                    Result = $result 
+                }
+            }          
+        }
     }
 }
 
