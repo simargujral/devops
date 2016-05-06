@@ -5,17 +5,17 @@ Write-Verbose -Message "Creating user configuration"
 net user WDeployAdmin pass@123456 /expires:never
 
 # Setting password for WDeployAdmin, WDeployConfigWriter and wsadmin to expire never
-$user = [adsi]"WinNT://$env:computername/WDeployAdmin"
-$user.UserFlags.value = $user.UserFlags.value -bor 0x10000
-$user.CommitChanges()
+#$user = [adsi]"WinNT://$env:computername/WDeployAdmin"
+#$user.UserFlags.value = $user.UserFlags.value -bor 0x10000
+#$user.CommitChanges()
 
-$user = [adsi]"WinNT://$env:computername/WDeployConfigWriter"
-$user.UserFlags.value = $user.UserFlags.value -bor 0x10000
-$user.CommitChanges()
+#$user = [adsi]"WinNT://$env:computername/WDeployConfigWriter"
+#$user.UserFlags.value = $user.UserFlags.value -bor 0x10000
+#$user.CommitChanges()
 
-$user = [adsi]"WinNT://$env:computername/wsadmin"
-$user.UserFlags.value = $user.UserFlags.value -bor 0x10000
-$user.CommitChanges()
+#$user = [adsi]"WinNT://$env:computername/wsadmin"
+#$user.UserFlags.value = $user.UserFlags.value -bor 0x10000
+#$user.CommitChanges()
 
 
 # Setting OS Level Firewall Rules
