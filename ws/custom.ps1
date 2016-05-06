@@ -6,9 +6,9 @@
 
 
 $mypwd = ConvertTo-SecureString -String "W1rest0ne!" -Force –AsPlainText
-Import-PfxCertificate –FilePath "C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\wildcard_hpsalescentral_com.pfx" -CertStoreLocation cert:\localMachine\my -Password $mypwd
+Import-PfxCertificate –FilePath "$env:ProgramFiles\WindowsPowerShell\Modules\xWebAdministration\wildcard_hpsalescentral_com.pfx" -CertStoreLocation cert:\localMachine\my -Password $mypwd
 
-Import-Certificate -FilePath "C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\hp-idp.cert.cer" -CertStoreLocation Cert:\LocalMachine\my
+Import-Certificate -FilePath "$env:ProgramFiles\WindowsPowerShell\Modules\xWebAdministration\hp-idp.cert.cer" -CertStoreLocation Cert:\LocalMachine\my
 
 # Setting password for WDeployAdmin, WDeployConfigWriter and wsadmin to expire never
 #$user = [adsi]"WinNT://$env:computername/WDeployAdmin"
