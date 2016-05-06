@@ -5,7 +5,7 @@
 #net user WDeployAdmin pass@123456 /expires:never
 
 
-$mypwd = ConvertTo-SecureString -String "W1rest0ne!" -Force –AsPlainText
+$mypwd = ConvertTo-SecureString -String 'W1rest0ne!' -Force –AsPlainText
 Import-PfxCertificate –FilePath "$env:ProgramFiles\WindowsPowerShell\Modules\xWebAdministration\wildcard_hpsalescentral_com.pfx" -CertStoreLocation cert:\localMachine\my -Password $mypwd
 
 Import-Certificate -FilePath "$env:ProgramFiles\WindowsPowerShell\Modules\xWebAdministration\hp-idp.cert.cer" -CertStoreLocation Cert:\LocalMachine\my
