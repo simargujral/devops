@@ -163,11 +163,22 @@ Configuration hpsc_stg_web3
             SetScript = {
                 [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Web.Management")  
                 [Microsoft.Web.Management.Server.ManagementAuthentication]::CreateUser("hpsc-stg-web-3-deploy", "pass@123456") 
-                [Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)   
+                [Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)
+                $user = [adsi]"WinNT://$env:computername/WDeployAdmin"
+                $user.UserFlags.value = $user.UserFlags.value -bor 0x10000
+                $user.CommitChanges()
+
+                $user = [adsi]"WinNT://$env:computername/WDeployConfigWriter"
+                $user.UserFlags.value = $user.UserFlags.value -bor 0x10000
+                $user.CommitChanges()
+
+                $user = [adsi]"WinNT://$env:computername/wsadmin"
+                $user.UserFlags.value = $user.UserFlags.value -bor 0x10000
+                $user.CommitChanges()				
             }
             TestScript = {
                 try {  
-				    [Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)
+				    [Microsoft.Web.Management.Server.ManagementAuthentication]::EnableUser("hpsc-stg-web-3-deploy")
                     return $true					
 				}
 				catch {
