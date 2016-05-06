@@ -164,6 +164,10 @@ Configuration hpsc_stg_web3
                 [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Web.Management")  
                 [Microsoft.Web.Management.Server.ManagementAuthentication]::CreateUser("hpsc-stg-web-3-deploy", "pass@123456") 
                 [Microsoft.Web.Management.Server.ManagementAuthorization]::Grant("hpsc-stg-web-3-deploy", "hpsc-stg-web-3", $FALSE)
+				
+				# Setting password for WDeployAdmin
+                net user WDeployAdmin pass@123456 /expires:never
+				
                 $user = [adsi]"WinNT://$env:computername/WDeployAdmin"
                 $user.UserFlags.value = $user.UserFlags.value -bor 0x10000
                 $user.CommitChanges()
@@ -177,11 +181,12 @@ Configuration hpsc_stg_web3
                 $user.CommitChanges()				
             }
             TestScript = {
-                try {  
-				    [Microsoft.Web.Management.Server.ManagementAuthentication]::EnableUser("hpsc-stg-web-3-deploy")
-                    return $true					
-				}
-				catch {
+                [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Web.Management")
+				$getuser=[Microsoft.Web.Management.Server.ManagementAuthentication]::GetUser("hpsc-stg-web-3-deploy")
+                if($getuser.enabled -eq "True"){
+                    return $true
+			    }
+				else{
 				    return $false
 				}
 
