@@ -1,14 +1,14 @@
 
 
-Write-Verbose -Message "Creating user configuration"
+#Write-Verbose -Message "Creating user configuration"
 # Setting password for WDeployAdmin
-net user WDeployAdmin pass@123456 /expires:never
+#net user WDeployAdmin pass@123456 /expires:never
 
 
 $mypwd = ConvertTo-SecureString -String "W1rest0ne!" -Force –AsPlainText
-Import-PfxCertificate –FilePath C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\wildcard_hpsalescentral_com.pfx cert:\localMachine\my -Password $mypwd
+Import-PfxCertificate –FilePath "C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\wildcard_hpsalescentral_com.pfx" -CertStoreLocation cert:\localMachine\my -Password $mypwd
 
-Import-Certificate -FilePath C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\hp-idp.cert.cer -CertStoreLocation Cert:\LocalMachine\my
+Import-Certificate -FilePath "C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\hp-idp.cert.cer" -CertStoreLocation Cert:\LocalMachine\my
 
 # Setting password for WDeployAdmin, WDeployConfigWriter and wsadmin to expire never
 #$user = [adsi]"WinNT://$env:computername/WDeployAdmin"
