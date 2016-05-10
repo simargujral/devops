@@ -203,7 +203,7 @@ Configuration hpsc_stg_web3
                 Write-Verbose "Installing SSL cert"
                 Import-Certificate -FilePath "C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\hp-idp.cert.cer" -CertStoreLocation "Cert:\LocalMachine\my"
                 $certpwd = ConvertTo-SecureString -String "W1rest0ne!" -Force -AsPlainText
-                Import-PfxCertificate –FilePath "C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\wildcard_hpsalescentral_com.pfx" -CertStoreLocation "Cert:\LocalMachine\my" -Password $certpwd				
+                Import-PfxCertificate -FilePath "C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\wildcard_hpsalescentral_com.pfx" -CertStoreLocation "Cert:\LocalMachine\my" -Password $certpwd				
             }
             TestScript = {
                     $check_cert=Get-ChildItem Cert:\LocalMachine\my
