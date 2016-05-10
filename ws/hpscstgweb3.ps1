@@ -36,7 +36,7 @@ Configuration hpsc_stg_web3
 	#$admin_password = ConvertTo-SecureString "wsl0cal@@" -AsPlainText -Force
 	#$admin_credential = New-Object System.Management.Automation.PSCredential ($env:Username, $admin_password)
 	
-    Node $Node.NodeName
+    Node $AllNodes.NodeName
     {   
         # Install IIS features	
         WindowsFeature IIS 
