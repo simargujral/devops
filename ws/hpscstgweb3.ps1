@@ -1,7 +1,7 @@
 $ConfigurationData = @{
     AllNodes = @(
         @{
-            NodeName = 'localhost';
+            NodeName = 'localhost'
             PSDscAllowPlainTextPassword = $true
             Users = @( 
                 @{ 
@@ -256,7 +256,7 @@ Configuration hpsc_stg_web3
                 }
             }          
         }
-		foreach($user in $Node.Users) {
+		foreach($user in $AllNodes.Users) {
 	        $Pass = ConvertTo-SecureString "ITT@123456" -AsPlainText -Force
 	        $Credential = New-Object System.Management.Automation.PSCredential ($user.UserName, $Pass)
 		    User $user.UserName
@@ -272,7 +272,7 @@ Configuration hpsc_stg_web3
         Group RDPusers
 		{
 		    GroupName = "Remote Desktop Users"
-		    MembersToInclude = @($Node.Users.UserName)
+		    MembersToInclude = @($AllNodes.Users.UserName)
 		    #Credential = $admin_credential
 		    Ensure = 'Present'
 			
@@ -280,6 +280,6 @@ Configuration hpsc_stg_web3
     }
 }
 
-hpsc_stg_web3
+hpsc_stg_web3 -ConfigurationData $ConfigurationData
 
 Start-DscConfiguration -Path .\hpsc_stg_web3 -Verbose -Wait -Force
