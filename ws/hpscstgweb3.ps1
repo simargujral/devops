@@ -208,15 +208,14 @@ Configuration hpsc_stg_web3
                 $certpwd = ConvertTo-SecureString -String "W1rest0ne!" -Force -AsPlainText
                 Import-PfxCertificate –FilePath "C:\Program Files\WindowsPowerShell\Modules\xWebAdministration\wildcard_hpsalescentral_com.pfx" -CertStoreLocation "Cert:\LocalMachine\my" -Password $certpwd				
             }
-            TestScript = {			
-                    $check_cert=Get-ChildItem Cert:\LocalMachine\my\ | ? { $_.Thumbprint -eq '88BACE3D426227E0D476DF4DDD49B477AB2CD1AC323' }
-                    if($check_cert.Thumbprint -eq '88BACE3D426227E0D476DF4DDD49B477AB2CD1AC323') 
+            TestScript = {
+                    $check_cert=Get-ChildItem Cert:\LocalMachine\my
+                    if($check_cert.Thumbprint -contains '88BACE3D426227E0D476DF4DDD49B477AB2CD1AC323')
                     {
                         Write-Verbose "Certificate already installed"
                         return $true
 				    }
-				    return $false
-                
+				    return $false              
 			}
             GetScript = { 
                 return @{
