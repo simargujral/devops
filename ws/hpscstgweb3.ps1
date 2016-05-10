@@ -1,9 +1,44 @@
+$ConfigurationData = @{
+    AllNodes = @(
+        @{
+            NodeName = 'localhost';
+            PSDscAllowPlainTextPassword = $true
+            Users = @( 
+                @{ 
+                    UserName = 'matt.krucker';
+                },
+                @{
+                    UserName = 'ivan.rezucha';
+                },
+                @{
+                    UserName = 'mike.higgins';
+                },
+				@{
+                    UserName = 'aj.adams';
+                },
+				@{
+                    UserName = 'simarpreet.gujral';
+                },
+				@{
+                    UserName = 'john.reasons';
+                }
+            )
+		}
+	)
+}
+
 Configuration hpsc_stg_web3
 {
+	param(
+	    [string]$admin_password
+	)
 	Import-DscResource -ModuleName xWebAdministration
 	Import-DSCResource -ModuleName xPSDesiredStateConfiguration
 
-    Node ('localhost')
+	$admin_password = ConvertTo-SecureString "wsl0cal@@" -AsPlainText -Force
+	$admin_credential = New-Object System.Management.Automation.PSCredential ($env:Username, $admin_password)
+	
+    Node $Node.NodeName
     {   
         # Install IIS features	
         WindowsFeature IIS 
@@ -223,9 +258,30 @@ Configuration hpsc_stg_web3
                 }
             }          
         }
+		foreach($user in $Node.Users) {
+	        $Pass = ConvertTo-SecureString "ITT@123456" -AsPlainText -Force
+	        $Credential = New-Object System.Management.Automation.PSCredential ($user.UserName, $Pass)
+		    User $user.UserName
+		    {
+		        UserName = $user.UserName
+			    Disabled = $true
+			    Ensure = 'Present'
+			    Password = $Credential
+			    PasswordNeverExpires = $true
+			   PasswordChangeRequired = $true
+            }      
+		}
+        Group RDPusers
+		{
+		    GroupName = "Remote Desktop Users"
+		    MembersToInclude = @($Node.Users.UserName)
+		    Credential = $admin_credential
+		    Ensure = 'Present'
+			
+		}
     }
 }
 
-hpsc_stg_web3
+hpsc_stg_web3 -admin_password $admin_password
 
 Start-DscConfiguration -Path .\hpsc_stg_web3 -Verbose -Wait -Force
