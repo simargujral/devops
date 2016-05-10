@@ -29,14 +29,12 @@ $ConfigurationData = @{
 
 Configuration hpsc_stg_web3
 {
-	param(
-	    [string]$admin_password
-	)
+	
 	Import-DscResource -ModuleName xWebAdministration
 	Import-DSCResource -ModuleName xPSDesiredStateConfiguration
 
-	$admin_password = ConvertTo-SecureString "wsl0cal@@" -AsPlainText -Force
-	$admin_credential = New-Object System.Management.Automation.PSCredential ($env:Username, $admin_password)
+	#$admin_password = ConvertTo-SecureString "wsl0cal@@" -AsPlainText -Force
+	#$admin_credential = New-Object System.Management.Automation.PSCredential ($env:Username, $admin_password)
 	
     Node $Node.NodeName
     {   
@@ -275,13 +273,13 @@ Configuration hpsc_stg_web3
 		{
 		    GroupName = "Remote Desktop Users"
 		    MembersToInclude = @($Node.Users.UserName)
-		    Credential = $admin_credential
+		    #Credential = $admin_credential
 		    Ensure = 'Present'
 			
 		}
     }
 }
 
-hpsc_stg_web3 -admin_password $admin_password
+hpsc_stg_web3
 
 Start-DscConfiguration -Path .\hpsc_stg_web3 -Verbose -Wait -Force
